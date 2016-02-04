@@ -1,4 +1,5 @@
 package DBIx::Class::BatchUpdate;
+
 use base qw(DBIx::Class);
 use strict;
 use warnings;

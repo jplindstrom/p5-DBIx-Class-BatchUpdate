@@ -1,4 +1,5 @@
 package DBIx::Class::BatchUpdate::Update;
+
 use Moo;
 use autobox::Core;
 use true;

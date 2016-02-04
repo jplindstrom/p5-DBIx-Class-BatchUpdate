@@ -1,4 +1,5 @@
 package DBIx::Class::BatchUpdate::Batch;
+
 use Moo;
 use true;
 
