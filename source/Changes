@@ -4,6 +4,8 @@ Feature oriented Revision history for DBIx-Class-BatchUpdate
 
 {{$NEXT}}
 
+1.002 -- 2016-02-04 21:10:16 UTC
+
 * Fix for #1 - Replace magic values for separator and undef with
   hashed values
 
