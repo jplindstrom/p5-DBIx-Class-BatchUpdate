@@ -4,7 +4,7 @@ Feature oriented Revision history for DBIx-Class-BatchUpdate
 
 {{$NEXT}}
 
-*
+* Fix https://github.com/jplindstrom/p5-DBIx-Class-BatchUpdate/issues/2
 
 
 1.000 -- 2016-02-04 15:10:57 UTC
