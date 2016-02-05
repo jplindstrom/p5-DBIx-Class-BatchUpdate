@@ -27,9 +27,6 @@ subtest batch_key => sub {
 
 
 
-###JPL: die if dirty PK?
-
-
 
 subtest "Empty rows" => sub {
     is_deeply(
@@ -108,6 +105,22 @@ subtest "Multiple PKs" => sub {
     throws_ok(
         sub { $batch->update() },
         qr/with multi-column PKs/,
+        "Multi-column PKs dies properly",
+    );
+};
+
+
+
+subtest "Dirty PK column value" => sub {
+    my $rows = [
+        get_row(1, { pkid => 68, is_out_of_print => 1 }),
+    ];
+
+    my $batch = DBIx::Class::BatchUpdate::Update->new({ rows => $rows });
+
+    throws_ok(
+        sub { $batch->update() },
+        qr/\QPrimary key (68) for ResultSource (Test::MockObject) is dirty, can't BatchUpdate/,
         "Multi-column PKs dies properly",
     );
 };

@@ -4,6 +4,8 @@ Feature oriented Revision history for DBIx-Class-BatchUpdate
 
 {{$NEXT}}
 
+* Fix for #3 - Die if there are dirty PK column values
+
 * Fix for #4 - Hard coded primary key "id".
 
 * Die if called with resultset which has multi-column PKs
