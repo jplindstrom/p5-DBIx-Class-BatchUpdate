@@ -52,15 +52,17 @@ my $resultset = Test::MockObject->new
     );
 
 sub get_row {
-    my ($row_id, $key_value) = @_;
-    return Test::MockObject->new
+    my ($row_id, $key_value, $pk_columns) = @_;
+    $pk_columns //= [ "pkid" ], # Non standard PK
+
+        return Test::MockObject->new
         ->set_always(id => $row_id)
         ->mock(get_dirty_columns => sub { return %$key_value })
         ->mock(
             result_source => sub {
                 Test::MockObject->new
                     ->set_always(resultset => $resultset)
-                    ->set_always(primary_columns => "pkid") # Non standard PK
+                    ->set_always(primary_columns => @$pk_columns)
                 },
         )
         ;
@@ -86,10 +88,8 @@ subtest "Rows with different values" => sub {
     eq_or_diff(
         $search_args,
         [
-            {
-                pkid => { -in => [ 1, 2 ] } }, # is_out_of_print
-            {
-                pkid => { -in => [ 3 ] } }, # is_out_of_print, price
+            { pkid => { -in => [ 1, 2 ] } }, # is_out_of_print
+            { pkid => { -in => [ 3 ]    } }, # is_out_of_print, price
         ],
     );
 };
