@@ -6,6 +6,7 @@ Feature oriented Revision history for DBIx-Class-BatchUpdate
 
 * Fix for #4 - Hard coded primary key "id".
 
+* Die if called with resultset which has multi-column PKs
 
 
 1.003 -- 2016-02-04 22:01:55 UTC
