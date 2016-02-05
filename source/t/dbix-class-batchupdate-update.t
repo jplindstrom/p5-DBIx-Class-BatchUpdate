@@ -57,7 +57,9 @@ sub get_row {
         ->mock(get_dirty_columns => sub { return %$key_value })
         ->mock(
             result_source => sub {
-                Test::MockObject->new->set_always(resultset => $resultset)
+                Test::MockObject->new
+                    ->set_always(resultset => $resultset)
+                    ->set_always(primary_columns => "pkid") # Non standard PK
             },
         )
         ;
@@ -80,8 +82,8 @@ is($update_call_count, 2, "update was called once for each combo");
 eq_or_diff(
     $search_args,
     [
-        { id => { -in => [ 1, 2 ] } }, # is_out_of_print
-        { id => { -in => [ 3 ] } },    # is_out_of_print, price
+        { pkid => { -in => [ 1, 2 ] } }, # is_out_of_print
+        { pkid => { -in => [ 3 ] } },    # is_out_of_print, price
     ],
 );
 
