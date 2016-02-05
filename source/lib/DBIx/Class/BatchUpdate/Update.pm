@@ -5,6 +5,7 @@ use autobox::Core;
 use true;
 
 use Storable qw/ nfreeze /;
+use Carp;
 
 use DBIx::Class::BatchUpdate::Batch;
 
@@ -12,17 +13,39 @@ use DBIx::Class::BatchUpdate::Batch;
 
 has rows => ( is => "ro", required => 1 );
 
+has result_source => ( is => "lazy" );
+sub _build_result_source {
+    my $self = shift;
+    my $row = $self->rows->[0] or return undef;
+    my $result_source = $row->result_source;
+    return $result_source;
+}
+
 has resultset => (is => "lazy");
 sub _build_resultset {
     my $self = shift;
-    my $row = $self->rows->[0] or return undef;
-    return $row->result_source->resultset();
+    my $result_source = $self->result_source or return undef;
+    return $result_source->resultset();
+}
+
+has pk_column => ( is => "lazy" );
+sub _build_pk_column {
+    my $self = shift;
+    my $result_source = $self->result_source or return undef;
+
+    my $result_source_name = ref($result_source);
+    my @columns = $result_source->primary_columns;
+    @columns > 1 and croak("DBIx::Class::BatchUpdate::Update does not work on result sources ($result_source_name) with multi-column PKs\n");
+
+    return $columns[0];
 }
 
 has batches => ( is => "lazy");
 sub _build_batches {
     my $self = shift;
-    $self->resultset or return [];
+    my $pk_column = $self->pk_column or return [];
+    my $result_source = $self->result_source;
+    my $result_source_name = ref($result_source);
 
     my $key_batch = {};
     for my $row ($self->rows->elements) {
@@ -32,6 +55,7 @@ sub _build_batches {
             key_value => $key_value,
             resultset => $self->resultset,
             key       => $batch_key,
+            pk_column => $pk_column,
         });
         $batch->ids->push( $row->id );
     };
