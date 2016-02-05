@@ -14,28 +14,29 @@ my $empty_batch = DBIx::Class::BatchUpdate::Update->new({ rows => [] });
 
 
 
-### batch_key
-my $key_value = { id => 3, price => 42, author_id => undef };
-my $md5 = qr/[^,]+/;
-eq_or_diff(
-    thaw( $empty_batch->batch_key($key_value) ),
-    $key_value,
-    "Correct batch_key (as far as we can tell)",
-);
-
-
-### Empty rows
-is_deeply(
-    $empty_batch->batches,
-    [],
-    "Empty rows, no batches",
-);
+subtest batch_key => sub {
+    my $key_value = { id => 3, price => 42, author_id => undef };
+    my $md5 = qr/[^,]+/;
+    eq_or_diff(
+        thaw( $empty_batch->batch_key($key_value) ),
+        $key_value,
+        "Correct batch_key (as far as we can tell)",
+    );
+};
 
 
 
-### Rows with different values
+###JPL: die if dirty PK?
 
-## Setup
+
+
+subtest "Empty rows" => sub {
+    is_deeply(
+        $empty_batch->batches,
+        [],
+        "Empty rows, no batches",
+    );
+};
 
 my $update_call_count = 0;
 my $search_args = [];
@@ -60,32 +61,43 @@ sub get_row {
                 Test::MockObject->new
                     ->set_always(resultset => $resultset)
                     ->set_always(primary_columns => "pkid") # Non standard PK
-            },
+                },
         )
         ;
 }
 
-my $rows = [
-    get_row(1, { is_out_of_print => 1 }),
-    get_row(2, { is_out_of_print => 1 }),
-    get_row(3, { is_out_of_print => 1, price => 42 }),
-];
+subtest "Rows with different values" => sub {
+    ## Setup
 
-my $batch = DBIx::Class::BatchUpdate::Update->new({ rows => $rows });
+    my $rows = [
+        get_row(1, { is_out_of_print => 1 }),
+        get_row(2, { is_out_of_print => 1 }),
+        get_row(3, { is_out_of_print => 1, price => 42 }),
+    ];
 
-## Run
-$batch->update();
+    my $batch = DBIx::Class::BatchUpdate::Update->new({ rows => $rows });
+
+    ## Run
+    $batch->update();
 
 
-## Test
-is($update_call_count, 2, "update was called once for each combo");
-eq_or_diff(
-    $search_args,
-    [
-        { pkid => { -in => [ 1, 2 ] } }, # is_out_of_print
-        { pkid => { -in => [ 3 ] } },    # is_out_of_print, price
-    ],
-);
+    ## Test
+    is($update_call_count, 2, "update was called once for each combo");
+    eq_or_diff(
+        $search_args,
+        [
+            {
+                pkid => { -in => [ 1, 2 ] } }, # is_out_of_print
+            {
+                pkid => { -in => [ 3 ] } }, # is_out_of_print, price
+        ],
+    );
+};
+
+
+
+###JPL: multiple PKs
+
 
 
 
