@@ -51,6 +51,9 @@ sub _build_batches {
     for my $row ($self->rows->elements) {
         my $key_value = { $row->get_dirty_columns };
         my $batch_key = $self->batch_key($key_value) or next;
+
+        exists $key_value->{$pk_column} and croak("Primary key ($key_value->{$pk_column}) for ResultSource ($result_source_name) is dirty, can't BatchUpdate");
+
         my $batch = $key_batch->{ $batch_key } //= DBIx::Class::BatchUpdate::Batch->new({
             key_value => $key_value,
             resultset => $self->resultset,
