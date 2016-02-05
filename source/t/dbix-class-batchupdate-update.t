@@ -1,6 +1,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Test::Exception;
 use Test::Differences;
 use Test::MockObject;
 
@@ -62,7 +63,7 @@ sub get_row {
             result_source => sub {
                 Test::MockObject->new
                     ->set_always(resultset => $resultset)
-                    ->set_always(primary_columns => @$pk_columns)
+                    ->mock(primary_columns => sub { @$pk_columns })
                 },
         )
         ;
@@ -96,8 +97,20 @@ subtest "Rows with different values" => sub {
 
 
 
-###JPL: multiple PKs
 
+subtest "Multiple PKs" => sub {
+    my $rows = [
+        get_row(1, { is_out_of_print => 1 }, [ "company", "language" ]),
+    ];
+
+    my $batch = DBIx::Class::BatchUpdate::Update->new({ rows => $rows });
+
+    throws_ok(
+        sub { $batch->update() },
+        qr/with multi-column PKs/,
+        "Multi-column PKs dies properly",
+    );
+};
 
 
 
