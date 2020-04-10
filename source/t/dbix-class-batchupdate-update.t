@@ -52,9 +52,10 @@ my $resultset = Test::MockObject->new
 sub get_row {
     my ($row_id, $key_value, $pk_columns) = @_;
     $pk_columns //= [ "pkid" ]; # Non standard PK
+    my $pk_column = $pk_columns->[0];
 
     return Test::MockObject->new
-        ->set_always(id => $row_id)
+        ->set_always($pk_column => $row_id)
         ->mock(get_dirty_columns => sub { return %$key_value })
         ->mock(
             result_source => sub {

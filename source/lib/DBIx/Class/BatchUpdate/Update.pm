@@ -60,7 +60,7 @@ sub _build_batches {
             key       => $batch_key,
             pk_column => $pk_column,
         });
-        $batch->ids->push( $row->id );
+        $batch->ids->push( $row->$pk_column );
     };
 
     # Sort to get some semblance of determinism wrt insert ordering
