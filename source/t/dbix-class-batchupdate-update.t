@@ -51,7 +51,7 @@ my $resultset = Test::MockObject->new
 
 sub get_row {
     my ($row_id, $key_value, $pk_columns) = @_;
-    $pk_columns //= [ "pkid" ], # Non standard PK
+    $pk_columns //= [ "pkid" ]; # Non standard PK
 
         return Test::MockObject->new
         ->set_always(id => $row_id)
