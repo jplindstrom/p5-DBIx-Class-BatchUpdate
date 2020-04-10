@@ -53,7 +53,7 @@ sub get_row {
     my ($row_id, $key_value, $pk_columns) = @_;
     $pk_columns //= [ "pkid" ]; # Non standard PK
 
-        return Test::MockObject->new
+    return Test::MockObject->new
         ->set_always(id => $row_id)
         ->mock(get_dirty_columns => sub { return %$key_value })
         ->mock(
@@ -62,8 +62,7 @@ sub get_row {
                     ->set_always(resultset => $resultset)
                     ->mock(primary_columns => sub { @$pk_columns })
                 },
-        )
-        ;
+        );
 }
 
 subtest "Rows with different values" => sub {
